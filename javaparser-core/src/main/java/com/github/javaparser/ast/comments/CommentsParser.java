@@ -55,14 +55,14 @@ public class CommentsParser {
          * Is the last character the one expected?
          */
         boolean isLastChar(char expectedChar) {
-            return !prevTwoChars.isEmpty() && prevTwoChars.peekLast().equals(expectedChar);
+            return prevTwoChars.size() >= 1 && prevTwoChars.peekLast().equals(expectedChar);
         }
 
         /**
          * Is the character before the last one the same as expectedChar?
          */
         public boolean isSecondToLastChar(char expectedChar) {
-            return !prevTwoChars.isEmpty() && prevTwoChars.peekFirst().equals(expectedChar);
+            return prevTwoChars.size() >= 1 && prevTwoChars.peekFirst().equals(expectedChar);
         }
 
         /**
@@ -97,7 +97,7 @@ public class CommentsParser {
         State state = State.CODE;
         LineComment currentLineComment = null;
         BlockComment currentBlockComment = null;
-        StringBuilder currentContent = null;
+        StringBuffer currentContent = null;
 
         int currLine = 1;
         int currCol  = 1;
@@ -119,13 +119,13 @@ public class CommentsParser {
                         currentLineComment.setBeginLine(currLine);
                         currentLineComment.setBeginColumn(currCol - 1);
                         state = State.IN_LINE_COMMENT;
-                        currentContent = new StringBuilder();
+                        currentContent = new StringBuffer();
                     } else if (parserState.isLastChar('/') && c == '*') {
                         currentBlockComment = new BlockComment();
                         currentBlockComment.setBeginLine(currLine);
                         currentBlockComment.setBeginColumn(currCol - 1);
                         state = State.IN_BLOCK_COMMENT;
-                        currentContent = new StringBuilder();
+                        currentContent = new StringBuffer();
                     } else if (c == '"') {
                         state = State.IN_STRING;
                     } else if (c == '\'') {

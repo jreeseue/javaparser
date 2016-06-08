@@ -123,12 +123,12 @@ public class JavaConcepts<T extends List<int[]>, X> extends Base implements Seri
         asc, def
     }
 
-    public enum Sexo {
+    public static enum Sexo {
 
         m, @Deprecated
         f;
 
-        public enum Sexo_ implements Serializable, Cloneable {
+        public static enum Sexo_ implements Serializable, Cloneable {
         }
 
         private Sexo() {
@@ -136,7 +136,7 @@ public class JavaConcepts<T extends List<int[]>, X> extends Base implements Seri
     }
 
     @Deprecated
-    public enum Enum {
+    public static enum Enum {
 
         m(1) {
 

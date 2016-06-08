@@ -39,7 +39,14 @@ public final class ClassOrInterfaceType extends Type implements NamedNode {
 
     private TypeArguments typeArguments = TypeArguments.EMPTY;
 
+    private boolean any = false;
+
     public ClassOrInterfaceType() {
+    }
+
+    public ClassOrInterfaceType(final boolean any, final String name) {
+        setAny(any);
+        setName(name);
     }
 
     public ClassOrInterfaceType(final String name) {
@@ -129,5 +136,13 @@ public final class ClassOrInterfaceType extends Type implements NamedNode {
     public void setTypeArguments(TypeArguments typeArguments) {
         this.typeArguments = typeArguments;
         setAsParentNodeOf(this.typeArguments.getTypeArguments());
+    }
+
+    public void setAny(final boolean any) {
+        this.any = any;
+    }
+
+    public boolean getAny() {
+        return this.any;
     }
 }

@@ -21,7 +21,6 @@
  
 package com.github.javaparser.ast.type;
 
-import com.github.javaparser.ast.TypedNode;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
@@ -33,7 +32,7 @@ import static com.github.javaparser.ast.internal.Utils.*;
 /**
  * @author Julio Vilmar Gesser
  */
-public final class ReferenceType extends Type implements TypedNode {
+public final class ReferenceType extends Type {
 
 	private Type type;
 
@@ -82,7 +81,6 @@ public final class ReferenceType extends Type implements TypedNode {
 		return arrayCount;
 	}
 
-	@Override
 	public Type getType() {
 		return type;
 	}
@@ -91,7 +89,6 @@ public final class ReferenceType extends Type implements TypedNode {
 		this.arrayCount = arrayCount;
 	}
 
-	@Override
 	public void setType(final Type type) {
 		this.type = type;
 		setAsParentNodeOf(this.type);

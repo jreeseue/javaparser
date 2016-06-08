@@ -21,7 +21,6 @@
  
 package com.github.javaparser.ast.expr;
 
-import com.github.javaparser.ast.TypedNode;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.visitor.GenericVisitor;
 import com.github.javaparser.ast.visitor.VoidVisitor;
@@ -31,7 +30,7 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
  * @author Raquel Pau
  *
  */
-public class TypeExpr extends Expression implements TypedNode {
+public class TypeExpr extends Expression{
 
     private Type type;
 
@@ -52,12 +51,10 @@ public class TypeExpr extends Expression implements TypedNode {
         v.visit(this, arg);
     }
 
-    @Override
     public Type getType() {
         return type;
     }
 
-    @Override
     public void setType(Type type) {
         this.type = type;
         setAsParentNodeOf(this.type);

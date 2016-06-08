@@ -21,7 +21,10 @@
  
 package com.github.javaparser.ast.body;
 
-import com.github.javaparser.ast.*;
+import com.github.javaparser.ast.AccessSpecifier;
+import com.github.javaparser.ast.DocumentableNode;
+import com.github.javaparser.ast.NamedNode;
+import com.github.javaparser.ast.TypeParameter;
 import com.github.javaparser.ast.comments.JavadocComment;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.NameExpr;
@@ -38,7 +41,7 @@ import static com.github.javaparser.ast.internal.Utils.ensureNotNull;
 /**
  * @author Julio Vilmar Gesser
  */
-public final class MethodDeclaration extends BodyDeclaration implements DocumentableNode, WithDeclaration, NamedNode, TypedNode {
+public final class MethodDeclaration extends BodyDeclaration implements DocumentableNode, WithDeclaration, NamedNode {
 
 	private int modifiers;
 
@@ -76,7 +79,7 @@ public final class MethodDeclaration extends BodyDeclaration implements Document
 
 	public MethodDeclaration(final int modifiers, final List<AnnotationExpr> annotations,
 			final List<TypeParameter> typeParameters, final Type type, final String name,
-			final List<Parameter> parameters, final int arrayCount, final List<ReferenceType> throws_, final BlockStmt body) {
+			final List<Parameter> parameters, final int arrayCount, final List<ReferenceType> throws_, final BlockStmt block) {
 		super(annotations);
 		setModifiers(modifiers);
 		setTypeParameters(typeParameters);
@@ -85,13 +88,13 @@ public final class MethodDeclaration extends BodyDeclaration implements Document
 		setParameters(parameters);
 		setArrayCount(arrayCount);
 		setThrows(throws_);
-		setBody(body);
+		setBody(block);
 	}
 
 	public MethodDeclaration(final int beginLine, final int beginColumn, final int endLine, final int endColumn,
 			final int modifiers, final List<AnnotationExpr> annotations,
 			final List<TypeParameter> typeParameters, final Type type, final String name,
-			final List<Parameter> parameters, final int arrayCount, final List<ReferenceType> throws_, final BlockStmt body) {
+			final List<Parameter> parameters, final int arrayCount, final List<ReferenceType> throws_, final BlockStmt block) {
 		super(beginLine, beginColumn, endLine, endColumn, annotations);
 		setModifiers(modifiers);
 		setTypeParameters(typeParameters);
@@ -100,7 +103,7 @@ public final class MethodDeclaration extends BodyDeclaration implements Document
 		setParameters(parameters);
 		setArrayCount(arrayCount);
 		setThrows(throws_);
-		setBody(body);
+		setBody(block);
 	}
 
 	@Override public <R, A> R accept(final GenericVisitor<R, A> v, final A arg) {
@@ -115,6 +118,7 @@ public final class MethodDeclaration extends BodyDeclaration implements Document
 		return arrayCount;
 	}
 
+	// FIXME this is called "Block" in the constructor. Pick one.
 	public BlockStmt getBody() {
 		return body;
 	}
@@ -148,7 +152,6 @@ public final class MethodDeclaration extends BodyDeclaration implements Document
         return throws_;
 	}
 
-	@Override
 	public Type getType() {
 		return type;
 	}
@@ -172,12 +175,11 @@ public final class MethodDeclaration extends BodyDeclaration implements Document
 	}
 
 	public void setName(final String name) {
-		setNameExpr(new NameExpr(name));
+		this.name = new NameExpr(name);
 	}
 
     public void setNameExpr(final NameExpr name) {
         this.name = name;
-	setAsParentNodeOf(this.name);
     }
 
     public void setParameters(final List<Parameter> parameters) {
@@ -190,7 +192,6 @@ public final class MethodDeclaration extends BodyDeclaration implements Document
 		setAsParentNodeOf(this.throws_);
 	}
 
-	@Override
 	public void setType(final Type type) {
 		this.type = type;
 		setAsParentNodeOf(this.type);
@@ -231,7 +232,7 @@ public final class MethodDeclaration extends BodyDeclaration implements Document
      */
     @Override
     public String getDeclarationAsString(boolean includingModifiers, boolean includingThrows, boolean includingParameterName) {
-        StringBuilder sb = new StringBuilder();
+        StringBuffer sb = new StringBuffer();
         if (includingModifiers) {
             AccessSpecifier accessSpecifier = ModifierSet.getAccessSpecifier(getModifiers());
             sb.append(accessSpecifier.getCodeRepresenation());

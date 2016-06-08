@@ -484,8 +484,10 @@ public abstract class ModifierVisitorAdapter<A> implements GenericVisitor<Node, 
 	}
 
 	@Override public Node visit(final ExplicitConstructorInvocationStmt n, final A arg) {
-		if (!n.isThis() && n.getExpr() != null) {
-			n.setExpr((Expression) n.getExpr().accept(this, arg));
+		if (!n.isThis()) {
+			if (n.getExpr() != null) {
+				n.setExpr((Expression) n.getExpr().accept(this, arg));
+			}
 		}
 		final List<Type> typeArgs = n.getTypeArgs();
 		if (typeArgs != null) {
@@ -785,30 +787,6 @@ public abstract class ModifierVisitorAdapter<A> implements GenericVisitor<Node, 
 		n.setType((Type) n.getType().accept(this, arg));
 		return n;
 	}
-
-    @Override
-    public Node visit(final IntersectionType n, final A arg) {
-        final List<ReferenceType> elements = n.getElements();
-        if (elements != null) {
-            for (int i = 0; i < elements.size(); i++) {
-                elements.set(i, (ReferenceType) elements.get(i).accept(this, arg));
-            }
-            removeNulls(elements);
-        }
-        return n;
-    }
-
-    @Override
-    public Node visit(final UnionType n, final A arg) {
-        final List<ReferenceType> elements = n.getElements();
-        if (elements != null) {
-            for (int i = 0; i < elements.size(); i++) {
-                elements.set(i, (ReferenceType) elements.get(i).accept(this, arg));
-            }
-            removeNulls(elements);
-        }
-        return n;
-    }
 
 	@Override public Node visit(final ReturnStmt n, final A arg) {
 		if (n.getExpr() != null) {

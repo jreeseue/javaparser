@@ -82,12 +82,11 @@ public final class FieldAccessExpr extends Expression {
 	}
 
 	public void setField(final String field) {
-		setFieldExpr(new NameExpr(field));
+		this.field = new NameExpr(field);
 	}
 
 	public void setFieldExpr(NameExpr field) {
 		this.field = field;
-		setAsParentNodeOf(this.field);
 	}
 
 	public void setScope(final Expression scope) {

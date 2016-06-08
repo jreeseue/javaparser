@@ -34,31 +34,39 @@ public abstract class BaseParameter extends Node implements AnnotableNode {
     private List<AnnotationExpr> annotations;
     
     private VariableDeclaratorId id;
+
+    private boolean any = false;
     
     public BaseParameter() {
     }
     
     public BaseParameter(VariableDeclaratorId id) {
         setId(id);
-	}
+    }
 
-	public BaseParameter(int modifiers, VariableDeclaratorId id) {
+    public BaseParameter(final int beginLine, final int beginColumn, final int endLine,
+                         final int endColumn, final boolean any) {
+        super(beginLine, beginColumn, endLine, endColumn);
+        setAny(any);
+    }
+
+    public BaseParameter(int modifiers, VariableDeclaratorId id) {
         setModifiers(modifiers);
         setId(id);
-	}
+    }
 	
-	public BaseParameter(int modifiers, List<AnnotationExpr> annotations, VariableDeclaratorId id) {
+    public BaseParameter(int modifiers, List<AnnotationExpr> annotations, VariableDeclaratorId id) {
         setModifiers(modifiers);
         setAnnotations(annotations);
         setId(id);
-	}
+    }
 
-	public BaseParameter(int beginLine, int beginColumn, int endLine, int endColumn, int modifiers, List<AnnotationExpr> annotations, VariableDeclaratorId id) {
-	    super(beginLine, beginColumn, endLine, endColumn);
+    public BaseParameter(int beginLine, int beginColumn, int endLine, int endColumn, int modifiers, List<AnnotationExpr> annotations, VariableDeclaratorId id) {
+        super(beginLine, beginColumn, endLine, endColumn);
         setModifiers(modifiers);
         setAnnotations(annotations);
         setId(id);
-	}
+    }
 
     /**
      * @return the list returned could be immutable (in that case it will be empty)
@@ -98,5 +106,9 @@ public abstract class BaseParameter extends Node implements AnnotableNode {
 
     public void setModifiers(int modifiers) {
         this.modifiers = modifiers;
+    }
+
+    public void setAny(boolean any) {
+        this.any = any;
     }
 }

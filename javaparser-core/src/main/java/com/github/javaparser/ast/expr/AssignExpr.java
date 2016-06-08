@@ -29,7 +29,7 @@ import com.github.javaparser.ast.visitor.VoidVisitor;
  */
 public final class AssignExpr extends Expression {
 
-    public enum Operator {
+    public static enum Operator {
         assign, // =
         plus, // +=
         minus, // -=

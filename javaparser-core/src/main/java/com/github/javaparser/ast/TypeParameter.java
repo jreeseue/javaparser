@@ -44,7 +44,7 @@ import static com.github.javaparser.ast.internal.Utils.ensureNotNull;
  */
 public final class TypeParameter extends Node implements NamedNode {
 
-	private String name;
+    private String name;
 
     private List<AnnotationExpr> annotations;
 
@@ -58,15 +58,18 @@ public final class TypeParameter extends Node implements NamedNode {
 		setTypeBound(typeBound);
 	}
 
-	public TypeParameter(final int beginLine, final int beginColumn, final int endLine, final int endColumn,
-			final String name, final List<ClassOrInterfaceType> typeBound) {
+    public TypeParameter(final int beginLine, final int beginColumn, final int endLine,
+                         final int endColumn, final String name,
+                         final List<ClassOrInterfaceType> typeBound) {
 		super(beginLine, beginColumn, endLine, endColumn);
 		setName(name);
 		setTypeBound(typeBound);
 	}
 
     public TypeParameter(int beginLine, int beginColumn, int endLine,
-                         int endColumn, String name, List<ClassOrInterfaceType> typeBound, List<AnnotationExpr> annotations) {
+                         int endColumn, String name,
+                         List<ClassOrInterfaceType> typeBound,
+                         List<AnnotationExpr> annotations) {
         this(beginLine, beginColumn, endLine, endColumn, name, typeBound);
         setName(name);
         setTypeBound(typeBound);

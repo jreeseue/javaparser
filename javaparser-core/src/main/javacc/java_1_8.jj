@@ -23,7 +23,7 @@ options {
   LOOKAHEAD=1;
   STATIC=false;
   JAVA_UNICODE_ESCAPE=true;
-  COMMON_TOKEN_ACTION=true; // Using the CommonTokenAction callback to collect tokens for later usage
+  //COMMON_TOKEN_ACTION=true; // Will not use CommonTokenAction to handle JavaDoc and comments
   //SUPPORT_CLASS_VISIBILITY_PUBLIC=false;
   JDK_VERSION = "1.6";
   TOKEN_FACTORY = "ASTParser.GTToken";
@@ -100,16 +100,6 @@ final class ASTParser {
         return ModifierSet.addModifier(modifiers, mod);
     }
 
-    /**
-     * Return the list of tokens that have been encountered while parsing code using
-     * this parser.
-     *
-     * @return a list of tokens
-     */
-    public List<Token> getTokens() {
-        return token_source.getTokens();
-    }
-
     private void throwParseException(Token token, String message) throws ParseException {
         StringBuilder buf = new StringBuilder();
         buf.append(message);
@@ -182,19 +172,6 @@ SKIP :
 | "\n"
 | "\r"
 | "\f"
-}
-
-TOKEN_MGR_DECLS :
-{
-    private List<Token> tokens = new ArrayList<Token>();
-
-    List<Token> getTokens() {
-        return tokens;
-    }
-
-    private void CommonTokenAction(Token token) {
-        tokens.add(token);
-    }
 }
 
 /* COMMENTS */
@@ -286,6 +263,7 @@ TOKEN :
 | < VOID: "void" >
 | < VOLATILE: "volatile" >
 | < WHILE: "while" >
+| < OPTIONAL: "optional" >
 }
 
 /* LITERALS */
@@ -1173,6 +1151,11 @@ CompilationUnit CompilationUnit():
 	int line = -1;
 	int column = 0;
 }
+/* Warning: Choice conflict in (...)* construct at line 1161, column 3.
+*           Expansion nested within construct and expansion following construct
+*           have common prefixes, one of which is: "import"
+*          Consider using a lookahead of 2 or more for nested expansion.
+*/
 {
   [ LOOKAHEAD(PackageDeclaration()) pakage = PackageDeclaration() {line = pakage.getBeginLine(); column = pakage.getBeginColumn();} ]
   ( in = ImportDeclaration()      { if(line==-1){line = in.getBeginLine(); column = in.getBeginColumn();} imports = add(imports, in); } |
@@ -1260,6 +1243,9 @@ Modifier Modifiers():
    "strictfp" { modifiers = addModifier(modifiers, ModifierSet.STRICTFP, token);  if(beginLine==-1) {beginLine=token.beginLine; beginColumn=token.beginColumn;} }
   |
    ann = Annotation() { annotations = add(annotations, ann); if(beginLine==-1) {beginLine=ann.getBeginLine(); beginColumn=ann.getBeginColumn();} }
+  |
+   "optional" { modifiers = addModifier(modifiers, ModifierSet.OPTIONAL, token);  if(beginLine==-1) {beginLine=token.beginLine; beginColumn=token.beginColumn;} }
+
   )
  )*
 
@@ -1281,6 +1267,8 @@ TypeDeclaration TypeDeclaration():
   (
     ";" { ret = new EmptyTypeDeclaration(token.beginLine, token.beginColumn, token.endLine, token.endColumn); }
   |
+  ("package" Name() ";")? 
+  ("import" ("static")? Name() ("." "*" )? ";")*
     modifier = Modifiers()
     (
        ret = ClassOrInterfaceDeclaration(modifier)
@@ -1296,6 +1284,7 @@ TypeDeclaration TypeDeclaration():
 
 ClassOrInterfaceDeclaration ClassOrInterfaceDeclaration(Modifier modifier):
 {
+   PackageDeclaration pakage = null;
    boolean isInterface = false;
    NameExpr name;
    List typePar = null;
@@ -1305,7 +1294,7 @@ ClassOrInterfaceDeclaration ClassOrInterfaceDeclaration(Modifier modifier):
    int line = modifier.beginLine;
    int column = modifier.beginColumn;
 }
-{
+{	
   ( "class" | "interface" { isInterface = true; } ) { if (line == -1) {line=token.beginLine; column=token.beginColumn;} }
   name = Name()
   [ typePar = TypeParameters() {typePar.remove(0);} ]
@@ -1319,22 +1308,28 @@ ClassOrInterfaceDeclaration ClassOrInterfaceDeclaration(Modifier modifier):
   }
 }
 
-List ExtendsList(boolean isInterface):
+   // new ClassOrInterfaceType(true, "*")); return ret; }
+ List ExtendsList(boolean isInterface):
 {
    boolean extendsMoreThanOne = false;
    List ret = new LinkedList();
    ClassOrInterfaceType cit;
-    AnnotationExpr ann;
+   AnnotationExpr ann;
    List annotations = null;
+   boolean any = false;
 }
 {
-   "extends" (ann = Annotation()   { annotations = add(annotations, ann);})* cit = ClassOrInterfaceType() { cit.setAnnotations(annotations); ret.add(cit); }
+   "extends" 
+   ( (ann = Annotation() { annotations = add(annotations, ann);})*
+    cit = ClassOrInterfaceType() { cit.setAnnotations(annotations); ret.add(cit); }
    ( "," cit = ClassOrInterfaceType() { ret.add(cit); extendsMoreThanOne = true; } )*
    {
       if (extendsMoreThanOne && !isInterface)
          throwParseException(token, "A class cannot extend more than one other class");
-   }
+   } 
    { return ret; }
+   | "*" { ret.add(new ClassOrInterfaceType(true, "*")); return ret; }
+   )
 }
 
 List ImplementsList(boolean isInterface):
@@ -1343,13 +1338,16 @@ List ImplementsList(boolean isInterface):
    ClassOrInterfaceType cit;
 }
 {
-   "implements" cit = ClassOrInterfaceTypeWithAnnotations() { ret.add(cit); }
+   "implements"
+   (cit = ClassOrInterfaceTypeWithAnnotations() { ret.add(cit); }
    ( "," cit = ClassOrInterfaceTypeWithAnnotations() { ret.add(cit); } )*
    {
       if (isInterface)
          throwParseException(token, "An interface cannot implement other interfaces");
    }
    { return ret; }
+   | "*" { ret.add(new ClassOrInterfaceType(true, "*")); return ret; }
+   )
 }
 
 EnumDeclaration EnumDeclaration(Modifier modifier):
@@ -1684,9 +1682,14 @@ Parameter FormalParameter():
 	Type type;
 	boolean isVarArg = false;
 	VariableDeclaratorId id;
+	boolean any = false;
 }
 {
-  modifier = Modifiers() type = Type() [ "..." { isVarArg = true;} ] id = VariableDeclaratorId()
+  "..."
+  {
+    return new Parameter(token.beginLine,token.beginColumn,token.endLine,token.endColumn,true);
+   } 
+  | modifier = Modifiers() type = Type() [ "..." { isVarArg = true;} ] id = VariableDeclaratorId()
 
   {
     int line = modifier.beginLine;

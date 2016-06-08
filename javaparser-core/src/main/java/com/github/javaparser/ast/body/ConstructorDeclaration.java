@@ -143,12 +143,11 @@ public final class ConstructorDeclaration extends BodyDeclaration implements Doc
     }
 
     public void setName(String name) {
-        setNameExpr(new NameExpr(name));
+        this.name = new NameExpr(name);
     }
 
     public void setNameExpr(NameExpr name) {
         this.name = name;
-	setAsParentNodeOf(this.name);
     }
 
     public void setParameters(List<Parameter> parameters) {
@@ -175,7 +174,7 @@ public final class ConstructorDeclaration extends BodyDeclaration implements Doc
     @Override
     public String getDeclarationAsString(boolean includingModifiers, boolean includingThrows,
                                          boolean includingParameterName) {
-        StringBuilder sb = new StringBuilder();
+        StringBuffer sb = new StringBuffer();
         if (includingModifiers) {
             AccessSpecifier accessSpecifier = ModifierSet.getAccessSpecifier(getModifiers());
             sb.append(accessSpecifier.getCodeRepresenation());

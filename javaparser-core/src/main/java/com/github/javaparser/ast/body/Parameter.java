@@ -21,7 +21,6 @@
  
 package com.github.javaparser.ast.body;
 
-import com.github.javaparser.ast.TypedNode;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.visitor.GenericVisitor;
@@ -32,12 +31,17 @@ import java.util.List;
 /**
  * @author Julio Vilmar Gesser
  */
-public final class Parameter extends BaseParameter implements TypedNode {
+public final class Parameter extends BaseParameter {
     private Type type;
 
     private boolean isVarArgs;
 
     public Parameter() {
+    }
+
+    public Parameter(final int beginLine, final int beginColumn, final int endLine,
+                     final int endColumn, final boolean any) {
+    	super(beginLine, beginColumn, endLine, endColumn, any);
     }
 
     public Parameter(Type type, VariableDeclaratorId id) {
@@ -50,7 +54,9 @@ public final class Parameter extends BaseParameter implements TypedNode {
         setType(type);
     }
 
-    public Parameter(int beginLine, int beginColumn, int endLine, int endColumn, int modifiers, List<AnnotationExpr> annotations, Type type, boolean isVarArgs, VariableDeclaratorId id) {
+    public Parameter(int beginLine, int beginColumn, int endLine, int endColumn,
+                     int modifiers, List<AnnotationExpr> annotations, Type type,
+                     boolean isVarArgs, VariableDeclaratorId id) {
         super(beginLine, beginColumn, endLine, endColumn, modifiers, annotations, id);
         setType(type);
         setVarArgs(isVarArgs);
@@ -66,7 +72,6 @@ public final class Parameter extends BaseParameter implements TypedNode {
         v.visit(this, arg);
     }
 
-    @Override
     public Type getType() {
         return type;
     }
@@ -75,7 +80,6 @@ public final class Parameter extends BaseParameter implements TypedNode {
         return isVarArgs;
     }
 
-    @Override
     public void setType(Type type) {
         this.type = type;
 		setAsParentNodeOf(this.type);

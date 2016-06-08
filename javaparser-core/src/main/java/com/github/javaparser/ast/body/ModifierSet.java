@@ -56,6 +56,9 @@ public final class ModifierSet {
 
     public static final int STRICTFP = Modifier.STRICT;
 
+    // TODO: this is a hack. Modifier only has a few fields with 4096...
+    public static final int OPTIONAL = 4096;
+
     public static AccessSpecifier getAccessSpecifier(int modifiers) {
         if (isPublic(modifiers)){
             return AccessSpecifier.PUBLIC;
@@ -129,6 +132,10 @@ public final class ModifierSet {
 
     public static boolean isVolatile(int modifiers) {
         return (modifiers & VOLATILE) != 0;
+    }
+
+    public static boolean isOptional(int modifiers) {
+        return (modifiers & OPTIONAL) != 0;
     }
 
     /**
